@@ -1,0 +1,83 @@
+/* Navbar container styling */
+*{
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  }
+  
+
+.custom-navbar {
+    color: white;
+    border-bottom: 2px solid #D4AF37; /* Gold border for the bottom */
+  }
+  
+  /* Navigation links */
+  .custom-nav-link {
+    color: white !important;
+    font-weight: 600;
+    padding: 5px 16px !important;
+    border-radius: 10px;
+    transition: color 0.3s, background-color 0.3s;
+  }
+  
+  .custom-nav-link:hover {
+    color: #333333 !important;
+    background-color: #D4AF37 !important;
+  }
+  
+  .navbar-toggler-icon {
+    color:#f0efefd8;
+    background-color: #D4AF37;
+    border-radius: 5px;
+    padding-top: 5px;
+  }
+
+
+  /* Toggler icon animation (shaking effect) */
+  @keyframes shake {
+    0% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-5px);
+    }
+    50% {
+      transform: translateX(5px);
+    }
+    75% {
+      transform: translateX(-5px);
+    }
+    100% {
+      transform: translateX(5px);
+    }
+  }
+  
+  .shake-animation {
+    animation: shake 1s infinite;
+  }
+  
+  /* Responsive styles for smaller screens */
+  @media (max-width: 767px) {
+    /* Hide desktop contact info in mobile view */
+    .d-none.d-lg-flex {
+      display: none !important;
+    }
+  
+    /* Ensure the menu is visible and collapses properly */
+    .navbar-collapse {
+      background-color: #e9e8e8; /* Same as navbar background */
+      padding: 1rem;
+    }
+  
+    .navbar-collapse.show {
+      display: block;
+    }
+  
+    .nav-item {
+      margin: 0.5rem 0; /* Add spacing between menu items */
+    }
+  
+    .custom-nav-link {
+      width: 100%; /* Make menu items take the full width in mobile view */
+      text-align: center;
+    }
+  }
+  
