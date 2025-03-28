@@ -1,0 +1,50 @@
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const connectDB = require("./db");
+const authRoutes = require("./routes/authRoutes");
+const cartRoutes = require("./routes/cartRoutes");
+const addressRoutes = require("./routes/addressRoutes")
+const productRoutes = require("./routes/productRoutes")
+const orderRoutes = require("./routes/orderRoutes");
+const venderUserRoutes = require("./routes/venderUserRoutes")
+const cookieParser = require("cookie-parser");
+const path = require("path");
+
+dotenv.config();
+connectDB();
+
+const app = express();
+app.use(express.json());
+app.use(cookieParser());
+const allowedOrigins = [
+  "http://localhost:3000",   // Dev frontend
+  "http://basavamart.in",    // Live frontend
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.get("/", (req, res) => {
+    res.send("Hello, Welcome to the Server!");
+  });
+
+app.use("/api/auth", authRoutes);
+app.use("/api/vender", venderUserRoutes)
+app.use("/api/cart", cartRoutes);
+app.use("/api/product", productRoutes);
+app.use('/api/address', addressRoutes);
+app.use('/api/order',orderRoutes);
+
+  const PORT = process.env.PORT || 3003;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
