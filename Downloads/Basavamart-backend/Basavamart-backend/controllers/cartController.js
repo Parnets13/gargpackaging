@@ -87,6 +87,18 @@ exports.removeFromCart = async (req, res) => {
   }
 };
 
+exports.deleteUserCart = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    await Cart.deleteOne({ userId });
+    console.log('deleted')
+    res.status(200).json({ message: "Cart deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting cart:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 exports.getCart = async (req, res) => {
   const userId = req.user.id;
   try {

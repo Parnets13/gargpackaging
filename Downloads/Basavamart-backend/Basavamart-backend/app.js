@@ -7,8 +7,11 @@ const cartRoutes = require("./routes/cartRoutes");
 const addressRoutes = require("./routes/addressRoutes")
 const productRoutes = require("./routes/productRoutes")
 const orderRoutes = require("./routes/orderRoutes");
-const venderUserRoutes = require("./routes/venderUserRoutes")
-const cookieParser = require("cookie-parser");
+const venderUserRoutes = require("./routes/venderUserRoutes");
+const bannerRoutes = require("./routes/bannerRoutes");
+const testimonialRoutes = require("./routes/testimonialsRoutes");
+const enquiryRoutes =require("./routes/enquiryRoutes");
+const cookieParser = require("cookie-parser")
 const path = require("path");
 
 dotenv.config();
@@ -34,6 +37,8 @@ app.use(cors({
 }));
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
 
 app.get("/", (req, res) => {
     res.send("Hello, Welcome to the Server!");
@@ -45,6 +50,9 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/product", productRoutes);
 app.use('/api/address', addressRoutes);
 app.use('/api/order',orderRoutes);
+app.use('/api/banner',bannerRoutes);
+app.use('/api/testimonials',testimonialRoutes);
+app.use('/api/enquiry',enquiryRoutes)
 
   const PORT = process.env.PORT || 3003;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

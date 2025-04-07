@@ -12,13 +12,34 @@ const passwordRegex =
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("Login attempt for:", email);
+
     const user = await User.findOne({ email });
+    console.log("User found:", user ? "Yes" : "No");
 
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
 
+    // Skip verification check for admin users
+    if (!user.isVerified && user.role !== 'admin') {
+      const otp = generateOTP();
+      user.otp = otp;
+      user.otpExpiration = Date.now() + 10 * 60 * 1000;
+      await user.save();
+      
+      await sendEmail(email, "Your OTP Code", `Your OTP code is: ${otp}. This code will expire in 10 minutes.`);
+      
+      return res.status(401).json({ 
+        message: "Please verify your email first. A new OTP has been sent to your email.",
+        requiresVerification: true,
+        email: email
+      });
+    }
+
     const isPassword = await bcrypt.compare(password, user.password);
+    console.log("Password match:", isPassword);
+
     if (!isPassword) {
       return res.status(400).json({ message: "Invalid password" });
     }
@@ -30,7 +51,9 @@ exports.login = async (req, res) => {
     );
 
     setTokenInCookie(res, token);
-    res.json({
+    console.log("Login successful, token generated");
+
+    res.status(200).json({
       token,
       user: {
         id: user._id,
@@ -72,6 +95,7 @@ exports.signup = async (req, res) => {
       otp, // Ensure this is being saved
       otpExpiration: Date.now() + 10 * 60 * 1000, // OTP valid for 10 minutes
     });
+    
     await newUser.save();
 
     console.log("Generated OTP:", otp); // Log the generated OTP
@@ -100,49 +124,69 @@ exports.verifyOTP = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Log the stored OTP and received OTP for debugging
+    // Detailed logging for debugging
+    console.log("Verification attempt for:", email);
     console.log("Stored OTP:", user.otp);
     console.log("Received OTP:", otp);
+    console.log("OTP Expiration:", user.otpExpiration);
+    console.log("Current time:", new Date());
 
-    // Check if the OTP is undefined
+    // Check if user is already verified
+    if (user.isVerified) {
+      return res.status(400).json({ message: "Email is already verified" });
+    }
+
+    // Check if the OTP exists
     if (!user.otp) {
-      return res.status(400).json({ message: "OTP not found. Please request a new one." });
+      return res.status(400).json({ 
+        message: "OTP not found or already used. Please request a new one." 
+      });
     }
 
     // Check if the OTP has expired
     if (Date.now() > user.otpExpiration) {
+      // Clear expired OTP
+      user.otp = undefined;
+      user.otpExpiration = undefined;
+      await user.save();
       return res.status(400).json({ message: "OTP has expired. Please request a new one." });
     }
 
-    // Compare the OTP (trim any extra spaces)
+    // Compare the OTP (trim any whitespace)
     if (user.otp.trim() !== otp.trim()) {
       return res.status(400).json({ message: "Invalid OTP" });
     }
 
-    // Clear the OTP and its expiration time after successful verification
+    // Mark user as verified and clear OTP
+    user.isVerified = true;
     user.otp = undefined;
     user.otpExpiration = undefined;
     await user.save();
 
-    // Generate a JWT token
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "3h" });
+    // Generate token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "3h" }
+    );
 
-    // Set the token in a cookie
+    // Set cookie and send response
     setTokenInCookie(res, token);
+    
+    return res.status(200).json({
+      message: "Email verified successfully",
+      token,
+      user: {
+        id: user._id,
+        name: user.firstname,
+        email: user.email,
+        role: user.role
+      }
+    });
 
-    // Send a success response
-    res.status(200).json({ message: "OTP verified successfully", user });
   } catch (error) {
     console.error("Error during OTP verification:", error);
-
-    // Handle different types of errors
-    if (error.response) {
-      res.status(error.response.status).json({ message: error.response.data.message || "An error occurred. Please try again later." });
-    } else if (error.request) {
-      res.status(500).json({ message: "No response from the server. Please check your network connection." });
-    } else {
-      res.status(500).json({ message: "An unexpected error occurred. Please try again." });
-    }
+    return res.status(500).json({ message: "Server error during verification" });
   }
 };
 
@@ -154,7 +198,7 @@ exports.getUser = async (req, res) => {
     res.status(200).json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "User Not Found" });
   }
 };
 
@@ -176,6 +220,7 @@ exports.addUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    const isAdmin = role === 'admin';
 
     const user = new User({
       firstname,
@@ -183,11 +228,43 @@ exports.addUser = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      isVerified: isAdmin, // Automatically verify admin users
     });
+    
     await user.save();
 
-    console.log("User added:", user);
-    res.status(201).json(user);
+    // If admin, generate token and login immediately
+    if (isAdmin) {
+      const token = jwt.sign(
+        { id: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "3h" }
+      );
+
+      setTokenInCookie(res, token);
+      
+      return res.status(201).json({
+        message: "Admin user created successfully",
+        token,
+        user: {
+          id: user._id,
+          name: user.firstname,
+          email: user.email,
+          role: user.role,
+          isVerified: true
+        }
+      });
+    }
+
+    // For non-admin users, continue with OTP process
+    const otp = generateOTP();
+    user.otp = otp;
+    user.otpExpiration = Date.now() + 10 * 60 * 1000;
+    await user.save();
+
+    await sendEmail(email, "Your OTP Code", `Your OTP code is: ${otp}. This code will expire in 10 minutes.`);
+    res.status(201).json({ message: "User registered, OTP sent to email" });
+
   } catch (error) {
     console.error("Error adding user:", error);
     res.status(500).json({ message: "Server error" });
