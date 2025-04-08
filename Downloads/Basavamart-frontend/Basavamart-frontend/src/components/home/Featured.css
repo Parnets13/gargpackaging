@@ -1,0 +1,25 @@
+.category-scroll-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .category-scroll {
+    display: flex;
+    animation: scroll-left 12s linear infinite;
+  }
+  
+  .category-card {
+    flex-shrink: 0; /* Prevent shrinking */
+    margin-right: 20px; /* Space between items */
+  }
+  
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%); /* Scroll halfway since we duplicate content */
+    }
+  }
+  

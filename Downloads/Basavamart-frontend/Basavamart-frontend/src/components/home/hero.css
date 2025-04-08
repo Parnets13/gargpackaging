@@ -1,0 +1,38 @@
+/* Add these styles to your CSS file */
+.slick-dots {
+  bottom: 20px !important;
+}
+
+.slick-dots li button:before {
+  color: white !important;
+  font-size: 10px !important;
+  opacity: 0.5;
+}
+
+.slick-dots li.slick-active button:before {
+  opacity: 1;
+  color: white !important;
+}
+
+/* Fade animation for slides */
+.slick-slide {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.slick-slide.slick-active {
+  opacity: 1;
+}
+
+/* Responsive height adjustments */
+@media (max-width: 768px) {
+  .hero-slider {
+    height: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-slider {
+    height: 200px;
+  }
+}
