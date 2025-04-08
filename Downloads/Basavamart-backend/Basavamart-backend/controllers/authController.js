@@ -320,6 +320,10 @@ exports.userUpdate = async (req, res) => {
   try {
     const { id } = req.user;
     const { password, ...otherFields } = req.body;
+    
+    console.log("User ID:", id);
+    console.log("Update request:", req.body);
+    console.log("Fields to update:", otherFields);
 
     if (password) {
       if (!passwordRegex.test(password)) {

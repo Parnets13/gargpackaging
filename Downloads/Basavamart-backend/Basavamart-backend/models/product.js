@@ -1,28 +1,44 @@
-// models/product.js
 const mongoose = require("mongoose");
 
 const variantSchema = new mongoose.Schema({
-  sku: { type: String, required: true },
-  size: { type: String, required: true },
-  price: { type: Number, required: true },
+  name: { type: String },
+  description: { type: String },
+  weight: { type: Number },
+  qty: { type: Number },
+  unitOfMeasurement: { type: String },
+  hsn: { type: String },
+  stock: { type: Number },
+  listPrice: { type: Number },
+  discount: { type: Number },
+  discountAmt: { type: Number },
+  totalWeight: { type: Number },
+  afterdiscountPrice: { type: Number },
+  profit: { type: Number },
+  profitMargin: { type: Number },
+  landingPrice: { type: Number },
+  tax: { type: Number },
+  taxAmt: { type: Number },
+  finalPrice: { type: Number },
 });
 
 const productSchema = new mongoose.Schema({
-  name: { type: String },
-  desc: { type: String },
+  productName: { type: String },
+  productDescription: { type: String },
   access: { type: String },
-  material: { type: String },
-  quality: { type: String },
-  weight: { type: String },
-  img: { type: String },
+  images: [{ type: String, required: true }],
   brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand", required: true },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",
     required: true,
   },
-  subcategory: { type: mongoose.Schema.Types.ObjectId, ref: "SubCategory" }, // Add subcategory
+  subcategory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubCategory",
+    // required: true,
+  },
   available: { type: String },
+  video: { type: String },
   variants: [variantSchema], // Add variants array
 });
 

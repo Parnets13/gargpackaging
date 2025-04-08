@@ -20,8 +20,8 @@ router.post('/login',login);
 router.get("/getuser",getUser);
 router.post("/adduser",addUser);
 router.put("/updateuser/:id",updateUser);
-router.put("/userupdate",protect,userUpdate);
+router.put("/userupdate", protect, userUpdate);
 router.delete('/deleteuser/:id',deleteUser)
-router.delete('/userdelete',protect,userDelete)
+router.delete('/userdelete', protect, userDelete)
 
 module.exports = router;

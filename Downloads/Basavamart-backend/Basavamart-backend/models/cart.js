@@ -17,10 +17,12 @@ const CartSchema = new mongoose.Schema(
         productName: { type: String, required: true },
         productImg: { type: String },
         variant: {
-          sku: { type: String, required: true },
-          size: { type: String, required: true },
+          hsn: { type: String, required: true },
+          name: { type: String },
+          size: { type: String },
           price: { type: Number, required: true },
-          quantity: { type: Number, required: true },
+          qty: { type: Number, required: true },
+          tax: { type: Number }
         },
         totalPrice: { type: Number, required: true },
       },

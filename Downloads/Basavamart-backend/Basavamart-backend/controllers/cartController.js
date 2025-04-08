@@ -21,16 +21,15 @@ exports.addToCart = async (req, res) => {
         const existingItemIndex = cart.items.findIndex(
           (item) =>
             item.productId.toString() === newItem.productId &&
-            item.variant.sku === newItem.variant.sku
+            item.variant.hsn === newItem.variant.hsn
         );
 
         if (existingItemIndex !== -1) {
           // Update quantity and total price of the existing variant
-          cart.items[existingItemIndex].variant.quantity +=
-            newItem.variant.quantity;
+          cart.items[existingItemIndex].variant.qty += newItem.variant.qty;
           cart.items[existingItemIndex].totalPrice =
             cart.items[existingItemIndex].variant.price *
-            cart.items[existingItemIndex].variant.quantity;
+            cart.items[existingItemIndex].variant.qty;
         } else {
           // Add new variant if it doesn't exist in the cart
           cart.items.push(newItem);
@@ -43,7 +42,7 @@ exports.addToCart = async (req, res) => {
         .json({ message: "Cart updated successfully", cart });
     }
   } catch (error) {
-    console.error("Error adding to cart:", error);
+    console.error("Error adding to cart:", error.message, error.stack);
     res.status(500).json({ message: "Server error", error });
   }
 };
@@ -58,7 +57,7 @@ exports.updateQuantity = async (req, res) => {
     }
     const item = cart.items.find((item) => item._id.toString() === itemId);
     if (item) {
-      item.variant.quantity = newQuantity;
+      item.variant.qty = newQuantity;
       item.totalPrice = item.variant.price * newQuantity; // Update total price
       await cart.save();
       return res.status(200).json({ message: "Quantity updated", cart });

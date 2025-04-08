@@ -3,11 +3,11 @@ const Address = require("../models/address");
 // Add address
 exports.addAddress = async (req, res) => {
   try {
-    const { userId, role } = req.user; // `protect` middleware adds `user` to `req`
+    // const { userId, role } = req.user; // `protect` middleware adds `user` to `req`
 
-    if (req.body.isDefault) {
-      await Address.updateMany({ userId }, { isDefault: false });
-    }
+    // if (req.body.isDefault) {
+    //   await Address.updateMany({ userId }, { isDefault: false });
+    // }
 
     const address = new Address({
       userId: req.user.id,

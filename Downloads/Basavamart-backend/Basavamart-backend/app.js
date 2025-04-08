@@ -40,6 +40,18 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 
+app.use("/uploadImg", express.static(path.join(__dirname, "uploadImg")));
+app.use("/BrandImg", express.static(path.join(__dirname, "BrandImg")));
+app.use("/CategoryImg", express.static(path.join(__dirname, "CategoryImg")));
+app.use(
+  "/subCategoryImg",
+  express.static(path.join(__dirname, "subCategoryImg"))
+);
+app.use("/LogoImg", express.static(path.join(__dirname, "LogoImg")));
+app.use("/ProductImg", express.static(path.join(__dirname, "ProductImg")));
+app.use("/BannerImg", express.static(path.join(__dirname, "BannerImg")));
+
+
 app.get("/", (req, res) => {
     res.send("Hello, Welcome to the Server!");
   });
